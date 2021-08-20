@@ -12,6 +12,8 @@
         <module>ms-registry</module>
         <module>ms-gateway</module>
         <module>ms-diners</module>
+        <module>commons</module>
+        <module>ms-oauth2-server</module>
     </modules>
 
     <!-- 可以集中定义依赖资源的版本信息 -->

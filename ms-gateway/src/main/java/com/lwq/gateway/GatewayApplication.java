@@ -1,14 +1,13 @@
-package com.imooc.diners;
+package com.lwq.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//@MapperScan("com.imooc.diners.mapper")
 @SpringBootApplication
-public class DinersApplication {
+public class GatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DinersApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
 }

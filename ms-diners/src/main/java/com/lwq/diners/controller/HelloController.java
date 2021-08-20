@@ -1,4 +1,4 @@
-package com.imooc.diners.controller;
+package com.lwq.diners.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
