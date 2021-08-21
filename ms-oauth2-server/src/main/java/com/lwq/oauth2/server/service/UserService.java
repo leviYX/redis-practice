@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService {
         // 拷贝属性
         BeanUtils.copyProperties(diners, signInIdentity);
         //返回用户信息，交给security，它帮你做校验
-        //return signInIdentity;
-       return new User(username,diners.getPassword(), AuthorityUtils.commaSeparatedStringToAuthorityList(diners.getRoles()));
+        return signInIdentity;
+       //return new User(username,diners.getPassword(), AuthorityUtils.commaSeparatedStringToAuthorityList(diners.getRoles()));
     }
 }

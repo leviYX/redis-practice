@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * 认证失败处理
+ * 认证失败处理,如果失败了，就走这个处理
  */
 @Component
 public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -44,5 +44,4 @@ public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
         out.flush();
         out.close();
     }
-
 }
