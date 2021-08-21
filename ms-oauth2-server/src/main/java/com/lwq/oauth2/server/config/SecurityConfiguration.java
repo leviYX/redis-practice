@@ -28,11 +28,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public RedisTokenStore redisTokenStore() {
         RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
-        redisTokenStore.setPrefix("TOKEN:"); // 设置key的层级前缀，方便查询
+        redisTokenStore.setPrefix("TOKEN:"); // 设置key的层级前缀，方便查询，存储的时候直接在这个前缀下面找就是TOKEN的数据了
         return redisTokenStore;
     }
 
-    // 初始化密码编码器，用 MD5 加密密码
+    // 直接写个匿名内部类了，初始化密码编码器，用 MD5 加密密码
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new PasswordEncoder() {
@@ -66,16 +66,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    // 放行和认证规则
+    // 放行和认证规则，security的放行规则
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf().disable()//禁用csrf，他是个防御机制，认为除了get其余所有请求不安全，我们禁用了，自己设计规则
                 .authorizeRequests()
-                // 放行的请求
+                // 放行的请求，security内部有他自己定义的接口来提供操作，所以要放行这些接口（是以/oauth开头的），我们的springboot监控端点是actuator开头也放行
                 .antMatchers("/oauth/**", "/actuator/**").permitAll()
                 .and()
                 .authorizeRequests()
-                // 其他请求必须认证才能访问
+                // 其他请求不能放行，必须认证才能访问
                 .anyRequest().authenticated();
     }
 

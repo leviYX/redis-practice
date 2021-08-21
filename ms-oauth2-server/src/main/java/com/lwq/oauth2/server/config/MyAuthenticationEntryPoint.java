@@ -1,9 +1,10 @@
 package com.lwq.oauth2.server.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.imooc.commons.constant.ApiConstant;
-import com.imooc.commons.model.domain.ResultInfo;
-import com.imooc.commons.utils.ResultInfoUtil;
+
+import com.lwq.commons.constant.ApiConstant;
+import com.lwq.commons.model.domain.ResultInfo;
+import com.lwq.commons.utils.ResultInfoUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

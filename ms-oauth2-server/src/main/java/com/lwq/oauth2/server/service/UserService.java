@@ -1,10 +1,13 @@
 package com.lwq.oauth2.server.service;
 
-import com.imooc.commons.model.domain.SignInIdentity;
-import com.imooc.commons.model.pojo.Diners;
-import com.imooc.commons.utils.AssertUtil;
+
+import com.lwq.commons.model.domain.SignInIdentity;
+import com.lwq.commons.model.pojo.Diners;
+import com.lwq.commons.utils.AssertUtil;
 import com.lwq.oauth2.server.mapper.DinersMapper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,7 +35,8 @@ public class UserService implements UserDetailsService {
         SignInIdentity signInIdentity = new SignInIdentity();
         // 拷贝属性
         BeanUtils.copyProperties(diners, signInIdentity);
-        return signInIdentity;
+        //返回用户信息，交给security，它帮你做校验
+        //return signInIdentity;
+       return new User(username,diners.getPassword(), AuthorityUtils.commaSeparatedStringToAuthorityList(diners.getRoles()));
     }
-
 }

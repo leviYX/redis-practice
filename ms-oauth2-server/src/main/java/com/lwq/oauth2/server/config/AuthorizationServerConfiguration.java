@@ -1,6 +1,6 @@
 package com.lwq.oauth2.server.config;
 
-import com.imooc.commons.model.domain.SignInIdentity;
+import com.lwq.commons.model.domain.SignInIdentity;
 import com.lwq.oauth2.server.service.UserService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +41,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
 
     /**
-     * 配置令牌端点安全约束
+     * 配置令牌端点安全约束，security内部有自己的接口，是受保护的默认，所以这里我们配置放行
      *
      * @param security
      * @throws Exception
@@ -80,21 +80,21 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         // 认证器
         endpoints.authenticationManager(authenticationManager)
-                // 具体登录的方法
+                // 具体登录的方法，自己写，完成校验，这是security提供的，你自己完成你的校验，交给他他就能拿你的结果完成他的后续步骤，逻辑通过生成令牌
                 .userDetailsService(userService)
                 // token 存储的方式：Redis
-                .tokenStore(redisTokenStore)
-                // 令牌增强对象，增强返回的结果
-                .tokenEnhancer((accessToken, authentication) -> {
-                    // 获取登录用户的信息，然后设置
-                    SignInIdentity signInIdentity = (SignInIdentity) authentication.getPrincipal();
-                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                    map.put("nickname", signInIdentity.getNickname());
-                    map.put("avatarUrl", signInIdentity.getAvatarUrl());
-                    DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
-                    token.setAdditionalInformation(map);
-                    return token;
-                });
+                .tokenStore(redisTokenStore);
+                // 令牌增强对象，增强返回的结果，返回更多信息
+//                .tokenEnhancer((accessToken, authentication) -> {
+//                    // 获取登录用户的信息，然后设置
+//                    SignInIdentity signInIdentity = (SignInIdentity) authentication.getPrincipal();
+//                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+//                    map.put("nickname", signInIdentity.getNickname());
+//                    map.put("avatarUrl", signInIdentity.getAvatarUrl());
+//                    DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) accessToken;
+//                    token.setAdditionalInformation(map);
+//                    return token;
+//                });
     }
 
 }

@@ -1,9 +1,10 @@
 package com.lwq.oauth2.server.controller;
 
-import com.imooc.commons.model.domain.ResultInfo;
-import com.imooc.commons.model.domain.SignInIdentity;
-import com.imooc.commons.model.vo.SignInDinerInfo;
-import com.imooc.commons.utils.ResultInfoUtil;
+
+import com.lwq.commons.model.domain.ResultInfo;
+import com.lwq.commons.model.domain.SignInIdentity;
+import com.lwq.commons.model.vo.SignInDinerInfo;
+import com.lwq.commons.utils.ResultInfoUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.Authentication;

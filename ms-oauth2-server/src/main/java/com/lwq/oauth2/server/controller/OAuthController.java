@@ -1,7 +1,8 @@
 package com.lwq.oauth2.server.controller;
 
-import com.imooc.commons.model.domain.ResultInfo;
-import com.imooc.commons.utils.ResultInfoUtil;
+
+import com.lwq.commons.model.domain.ResultInfo;
+import com.lwq.commons.utils.ResultInfoUtil;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
@@ -37,7 +38,7 @@ public class OAuthController {
     }
 
     /**
-     * 自定义 Token 返回对象
+     * 自定义 Token 返回对象,比起以前security自己内部的加多一些操作返回
      *
      * @param accessToken
      * @return

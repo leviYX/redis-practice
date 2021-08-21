@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 登录认证对象
+ * 登录认证对象，继承security的UserDetails，重写自己的
  */
 @Getter
 @Setter
