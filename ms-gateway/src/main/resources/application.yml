@@ -23,6 +23,13 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+
+        - id: ms-seckill
+          uri: lb://ms-seckill
+          predicates:
+            - Path=/seckill/**
+          filters:
+            - StripPrefix=1
 secure:
   ignore:
     urls: # 配置白名单路径
@@ -32,6 +39,7 @@ secure:
     - /diners/send #放行生成验证码
     - /diners/checkPhone #放行手机是否注册
     - /diners/register #放行注册接口
+    - /seckill/add #放行添加秒杀活动接口
 # 配置 Eureka Server 注册中心
 eureka:
   instance:

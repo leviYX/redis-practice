@@ -14,6 +14,7 @@
         <module>ms-diners</module>
         <module>commons</module>
         <module>ms-oauth2-server</module>
+        <module>ms-seckill</module>
     </modules>
 
     <!-- 可以集中定义依赖资源的版本信息 -->
