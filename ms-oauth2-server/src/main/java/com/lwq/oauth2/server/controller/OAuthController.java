@@ -31,6 +31,13 @@ public class OAuthController {
     @Resource
     private HttpServletRequest request;
 
+    /**
+     * 生成token令牌，这个就是走的security内部jar包的封装的接口，直接发接口，他生成
+     * @param principal
+     * @param parameters：client_id、client_secret、grant_type、username、password
+     * @return
+     * @throws HttpRequestMethodNotSupportedException
+     */
     @PostMapping("token")
     public ResultInfo postAccessToken(Principal principal, @RequestParam Map<String, String> parameters)
             throws HttpRequestMethodNotSupportedException {
@@ -38,7 +45,7 @@ public class OAuthController {
     }
 
     /**
-     * 自定义 Token 返回对象,比起以前security自己内部的加多一些操作返回
+     * 自定义 Token 返回对象,比起以前security自己内部的加多一些操作返回，个性化走一波
      *
      * @param accessToken
      * @return

@@ -2,6 +2,9 @@ package com.lwq.commons.constant;
 
 import lombok.Getter;
 
+/**
+ * 各种枚举类，验证码的，分布式锁的等等
+ */
 @Getter
 public enum RedisKeyConstant {
 
