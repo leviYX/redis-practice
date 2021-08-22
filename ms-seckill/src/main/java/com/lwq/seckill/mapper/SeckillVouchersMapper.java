@@ -4,7 +4,7 @@ import com.lwq.commons.model.pojo.SeckillVouchers;
 import org.apache.ibatis.annotations.*;
 
 /**
- * 秒杀代金券 Mapper
+ * 秒杀代金券 Mapper，一个人只能抢一次
  */
 public interface SeckillVouchersMapper {
 
@@ -19,9 +19,8 @@ public interface SeckillVouchersMapper {
             " from t_seckill_vouchers where fk_voucher_id = #{voucherId}")
     SeckillVouchers selectVoucher(Integer voucherId);
 
-    // 减库存
+    // 用户下单之后，生成订单并且减库存
     @Update("update t_seckill_vouchers set amount = amount - 1 " +
             " where id = #{seckillId}")
     int stockDecrease(@Param("seckillId") int seckillId);
-
 }

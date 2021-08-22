@@ -15,7 +15,7 @@ spring:
     port: 6379
     host: 192.168.197.128
     timeout: 3000
-    password:
+    database: 0
   # Swagger
   swagger:
     base-package: com.lwq.seckill
@@ -41,3 +41,4 @@ service:
 logging:
   pattern:
     console: '%d{HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
+#debug: true
