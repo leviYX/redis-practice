@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.3">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.1">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -46,7 +46,7 @@
         </HTTPSamplerProxy>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="登录用户token" enabled="true">
-          <stringProp name="filename">D:/IdeaProjects/example/food-social-contact-parent/ms-oauth2-server/tokens.txt</stringProp>
+          <stringProp name="filename">D:\work\workspace\redis\food-social-contact\ms-oauth2-server\tokens.txt</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">access_token</stringProp>
           <boolProp name="ignoreFirstLine">false</boolProp>
@@ -164,7 +164,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">seckill/1?access_token=b221fc83-ac8a-405b-a24f-c75c865ca879</stringProp>
+          <stringProp name="HTTPSampler.path">seckill/1?access_token=faaa61db-6021-40ad-b427-74e016036e6d</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>

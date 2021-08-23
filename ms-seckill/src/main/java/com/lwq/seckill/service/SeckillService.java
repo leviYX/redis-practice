@@ -111,6 +111,7 @@ public class SeckillService {
         voucherOrders.setOrderNo(orderNo);
         voucherOrders.setOrderType(1);
         voucherOrders.setStatus(0);
+        count = voucherOrdersMapper.save(voucherOrders);
         AssertUtil.isTrue(count == 0, "用户抢购失败");
         return ResultInfoUtil.buildSuccess(path, "抢购成功");
         // 使用 Redis 锁一个账号只能购买一次
