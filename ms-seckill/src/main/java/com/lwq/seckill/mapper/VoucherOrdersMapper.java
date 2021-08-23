@@ -23,6 +23,6 @@ public interface VoucherOrdersMapper {
             " status, fk_seckill_id, order_type, create_date, update_date,  is_valid)" +
             " values (#{orderNo}, #{fkVoucherId}, #{fkDinerId}, #{status}, #{fkSeckillId}, " +
             " #{orderType}, now(), now(), 1)")
-    int save(VoucherOrders voucherOrders);
+    long save(VoucherOrders voucherOrders);
 
 }

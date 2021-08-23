@@ -66,15 +66,15 @@ public class SeckillService {
 
         // 注释原始的 关系型数据库 的流程
         // 判断此代金券是否加入抢购,看看本次活动是不是有它
-         SeckillVouchers seckillVouchers = seckillVouchersMapper.selectVoucher(voucherId);
-         AssertUtil.isTrue(seckillVouchers == null, "该代金券并未有抢购活动");
+//         SeckillVouchers seckillVouchers = seckillVouchersMapper.selectVoucher(voucherId);
+//         AssertUtil.isTrue(seckillVouchers == null, "该代金券并未有抢购活动");
          //判断是否有效，活动期限过没过
-         AssertUtil.isTrue(seckillVouchers.getIsValid() == 0, "该活动已结束");
+         //AssertUtil.isTrue(seckillVouchers.getIsValid() == 0, "该活动已结束");
 
         // 采用 Redis
-       /* String key = RedisKeyConstant.seckill_vouchers.getKey() + voucherId;
+        String key = RedisKeyConstant.seckill_vouchers.getKey() + voucherId;
         Map<String, Object> map = redisTemplate.opsForHash().entries(key);
-        SeckillVouchers seckillVouchers = BeanUtil.mapToBean(map, SeckillVouchers.class, true, null);*/
+        SeckillVouchers seckillVouchers = BeanUtil.mapToBean(map, SeckillVouchers.class, true, null);
 
         // 判断是否开始、结束
         Date now = new Date();
@@ -99,20 +99,34 @@ public class SeckillService {
 
         // 注释原始的 关系型数据库 的流程
         // 扣库存
-         int count = seckillVouchersMapper.stockDecrease(seckillVouchers.getId());
-         AssertUtil.isTrue(count == 0, "该券已经卖完了");
-         //下单
+//         int count = seckillVouchersMapper.stockDecrease(seckillVouchers.getId());
+//         AssertUtil.isTrue(count == 0, "该券已经卖完了");
+
+
+        //下单,还是存到Mysql中的
         VoucherOrders voucherOrders = new VoucherOrders();
         voucherOrders.setFkDinerId(dinerInfo.getId());
-        // Mysql中需要。Redis 中不需要维护外键信息
-        voucherOrders.setFkSeckillId(seckillVouchers.getId());
+        // Mysql中需要。Redis 中不需要维护外键信息，非关系型的不玩这个
+        //voucherOrders.setFkSeckillId(seckillVouchers.getId());
         voucherOrders.setFkVoucherId(seckillVouchers.getFkVoucherId());
         String orderNo = IdUtil.getSnowflake(1, 1).nextIdStr();
         voucherOrders.setOrderNo(orderNo);
         voucherOrders.setOrderType(1);
         voucherOrders.setStatus(0);
-        count = voucherOrdersMapper.save(voucherOrders);
+        Long count = voucherOrdersMapper.save(voucherOrders);
         AssertUtil.isTrue(count == 0, "用户抢购失败");
+
+        //采用redis解决扣库存问题，存在超卖问题，因为你减一和下面的判断卖完是非原子操作，可能大家一起减一，就在你判断卖完之前，就会挤到这里，导致超卖
+//        count = redisTemplate.opsForHash().increment(key, "amount", -1);
+//        AssertUtil.isTrue(count < 0, "该券已经卖完了，无需再抢");
+
+        // 采用 Redis + Lua 解决扣库存问题，lua是原子的，查和减是一起执行的
+        List<String> keys = new ArrayList<>();
+        keys.add(key);
+        keys.add("amount");
+        Long amount = (Long) redisTemplate.execute(defaultRedisScript, keys);
+        AssertUtil.isTrue(amount == null || amount < 1, "该券已经卖完了");
+
         return ResultInfoUtil.buildSuccess(path, "抢购成功");
         // 使用 Redis 锁一个账号只能购买一次
         /*String lockName = RedisKeyConstant.lock_key.getKey()
@@ -195,23 +209,24 @@ public class SeckillService {
 
         // 注释原始的走 关系型数据库 的流程
         // 验证数据库中是否已经存在该券的秒杀活动,该券如果没有在添加秒杀活动，有就不了
-        SeckillVouchers seckillVouchersFromDb = seckillVouchersMapper.selectVoucher(seckillVouchers.getFkVoucherId());
-        AssertUtil.isTrue(seckillVouchersFromDb != null, "该券已经拥有了抢购活动");
-        // 插入数据库
-        seckillVouchersMapper.save(seckillVouchers);
+//        SeckillVouchers seckillVouchersFromDb = seckillVouchersMapper.selectVoucher(seckillVouchers.getFkVoucherId());
+//        AssertUtil.isTrue(seckillVouchersFromDb != null, "该券已经拥有了抢购活动");
+//        插入数据库
+//        seckillVouchersMapper.save(seckillVouchers);
 
-        // 采用 Redis 实现
-//        String key = RedisKeyConstant.seckill_vouchers.getKey() +
-//                seckillVouchers.getFkVoucherId();
-//        // 验证 Redis 中是否已经存在该券的秒杀活动
-//        Map<String, Object> map = redisTemplate.opsForHash().entries(key);
-//        AssertUtil.isTrue(!map.isEmpty() && (int) map.get("amount") > 0, "该券已经拥有了抢购活动");
+        // 不用mysql，改为采用 Redis 实现
+        String key = RedisKeyConstant.seckill_vouchers.getKey() +
+                seckillVouchers.getFkVoucherId();
+        // 验证 Redis 中是否已经存在该券的秒杀活动，用hash比string快，因为string要做序列化，你拿到还得烦序列化取出属性
+        //hash不序列化，能直接取出对象中的属性，因为是个map<,直接get就行
+        Map<String, Object> map = redisTemplate.opsForHash().entries(key);
+        AssertUtil.isTrue(!map.isEmpty() && (int) map.get("amount") > 0, "该券已经拥有了抢购活动");
 
         // 插入 Redis
-        /*seckillVouchers.setIsValid(1);
+        seckillVouchers.setIsValid(1);
         seckillVouchers.setCreateDate(now);
-        seckillVouchers.setUpdateDate(now);*/
-        //redisTemplate.opsForHash().putAll(key, BeanUtil.beanToMap(seckillVouchers));
+        seckillVouchers.setUpdateDate(now);
+        redisTemplate.opsForHash().putAll(key, BeanUtil.beanToMap(seckillVouchers));
     }
 
 }
