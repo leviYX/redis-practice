@@ -99,7 +99,7 @@ public class SeckillService {
 
         // 注释原始的 关系型数据库 的流程
         // 扣库存
-//         int count = seckillVouchersMapper.stockDecrease(seckillVouchers.getId());
+        //int count = seckillVouchersMapper.stockDecrease(seckillVouchers.getId());
 //         AssertUtil.isTrue(count == 0, "该券已经卖完了");
 
 
@@ -114,13 +114,14 @@ public class SeckillService {
         voucherOrders.setOrderType(1);
         voucherOrders.setStatus(0);
         Long count = voucherOrdersMapper.save(voucherOrders);
+        //0表示插入失败，劵号重了，已经被抢了
         AssertUtil.isTrue(count == 0, "用户抢购失败");
 
         //采用redis解决扣库存问题，存在超卖问题，因为你减一和下面的判断卖完是非原子操作，可能大家一起减一，就在你判断卖完之前，就会挤到这里，导致超卖
 //        count = redisTemplate.opsForHash().increment(key, "amount", -1);
 //        AssertUtil.isTrue(count < 0, "该券已经卖完了，无需再抢");
 
-        // 采用 Redis + Lua 解决扣库存问题，lua是原子的，查和减是一起执行的
+        // 采用 Redis + Lua 解决扣库存问题，lua是原子的，查和减是一起执行的，所以不存在超卖
         List<String> keys = new ArrayList<>();
         keys.add(key);
         keys.add("amount");
