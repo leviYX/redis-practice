@@ -1,0 +1,61 @@
+server:
+  port: 80
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 开启配置注册中心进行路由功能，就是让网关也能在服务中心通过服务名找到服务
+          lower-case-service-id: true # 将服务名称转小写，就是小写也能找到
+      routes:
+        - id: ms-diners
+          uri: lb://ms-diners
+          predicates:
+            - Path=/diners/**
+          filters:
+            - StripPrefix=1
+
+        - id: ms-oauth2-server
+          uri: lb://ms-oauth2-server
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: ms-seckill
+          uri: lb://ms-seckill
+          predicates:
+            - Path=/seckill/**
+          filters:
+            - StripPrefix=1
+
+        - id: ms-follow
+          uri: lb://ms-follow
+          predicates:
+            - Path=/follow/**
+          filters:
+            - StripPrefix=1
+secure:
+  ignore:
+    urls: # 配置白名单路径
+    - /actuator/** #放行监控端点
+    - /auth/oauth/** #放行生成令牌
+    - /diners/signin #放行登录
+    - /diners/send #放行生成验证码
+    - /diners/checkPhone #放行手机是否注册
+    - /diners/register #放行注册接口
+    - /seckill/add #放行添加秒杀活动接口
+# 配置 Eureka Server 注册中心
+eureka:
+  instance:
+    prefer-ip-address: true #在注册中心以ip地址的形式注册
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
+
+logging:
+  pattern:
+    console: '%d{2100-01-01 13:14:00.666} [%thread] %-5level %logger{50} - %msg%n'
