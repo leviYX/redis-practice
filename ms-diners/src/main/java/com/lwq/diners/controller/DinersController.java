@@ -3,6 +3,7 @@ package com.lwq.diners.controller;
 
 import com.lwq.commons.model.domain.ResultInfo;
 import com.lwq.commons.model.dto.DinersDTO;
+import com.lwq.commons.model.vo.ShortDinerInfo;
 import com.lwq.commons.utils.ResultInfoUtil;
 import com.lwq.diners.service.DinersService;
 import io.swagger.annotations.Api;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 食客服务控制层
@@ -26,6 +28,18 @@ public class DinersController {
 
     @Resource
     private HttpServletRequest request;
+
+    /**
+     * 根据 ids 查询食客信息
+     *
+     * @param ids
+     * @return
+     */
+    @GetMapping("findByIds")
+    public ResultInfo<List<ShortDinerInfo>> findByIds(String ids) {
+        List<ShortDinerInfo> dinerInfos = dinersService.findByIds(ids);
+        return ResultInfoUtil.buildSuccess(request.getServletPath(), dinerInfos);
+    }
 
     /**
      * 注册

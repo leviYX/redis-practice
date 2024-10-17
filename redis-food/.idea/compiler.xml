@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="ms-registry" />
+        <module name="ms-points" />
+        <module name="ms-diners" />
+        <module name="ms-follow" />
+        <module name="ms-oauth2-server" />
+        <module name="ms-seckill" />
+        <module name="ms-restaurants" />
+        <module name="ms-feeds" />
+        <module name="commons" />
+        <module name="ms-gateway" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

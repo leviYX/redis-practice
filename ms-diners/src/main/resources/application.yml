@@ -13,9 +13,9 @@ spring:
   # Redis
   redis:
     port: 6379
-    host: localhost
+    host: 39.106.106.199
     timeout: 3000
-    password:
+    password: 123456
   # swagger
   swagger:
     base-package: com.imooc.diners
@@ -32,6 +32,7 @@ oauth2:
 service:
   name:
     ms-oauth-server: http://ms-oauth2-server/
+    ms-points-server: http://ms-points/
 # 配置 Eureka Server 注册中心
 eureka:
   instance:
