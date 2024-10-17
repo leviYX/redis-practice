@@ -12,11 +12,15 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/db_food?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useUnicode=true&useSSL=false
   # Redis
   redis:
-    port: 6379
-    host: localhost
+#    port: 6379
+#    host: 39.106.106.199
     timeout: 3000
     database: 0
-    password:
+    password: 123456
+    #客户端连到哨兵就能直接拿到主节点信息，然后通过哨兵同步数据到从节点，以及读取数据也是从节点
+    sentinel:
+      master: mymaster
+      nodes: 39.106.106.199:26379,39.106.106.199:26380,39.106.106.199:26381
   # swagger
   swagger:
     base-package: com.lwq.oauth2

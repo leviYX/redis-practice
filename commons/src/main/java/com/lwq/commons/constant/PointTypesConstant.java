@@ -7,11 +7,11 @@ import lombok.Getter;
  */
 @Getter
 public enum PointTypesConstant {
-
-    sign(0),
-    follow(1),
-    feed(2),
-    review(3)
+    //不做字典表了，直接做个枚举
+    sign(0),//签到的
+    follow(1),//关注的
+    feed(2),//发feed的
+    review(3)//餐厅的
     ;
 
     private int type;

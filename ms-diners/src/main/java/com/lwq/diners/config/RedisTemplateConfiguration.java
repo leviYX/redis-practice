@@ -1,4 +1,4 @@
-package com.lew.diners.config;
+package com.lwq.diners.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
