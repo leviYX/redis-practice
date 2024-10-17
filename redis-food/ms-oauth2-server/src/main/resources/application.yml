@@ -13,10 +13,10 @@ spring:
   # Redis
   redis:
     port: 6379
-    host: localhost
+    host: 39.106.106.199
     timeout: 3000
     database: 0
-    password:
+    password: 123456
   # swagger
   swagger:
     base-package: com.lwq.oauth2

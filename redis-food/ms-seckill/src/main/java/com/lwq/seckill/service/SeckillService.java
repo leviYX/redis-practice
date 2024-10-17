@@ -65,13 +65,6 @@ public class SeckillService {
         AssertUtil.isTrue(voucherId == null || voucherId < 0, "请选择需要抢购的代金券");
         AssertUtil.isNotEmpty(accessToken, "请登录");
 
-        // 注释原始的 关系型数据库 的流程
-        // 判断此代金券是否加入抢购,看看本次活动是不是有它
-//         SeckillVouchers seckillVouchers = seckillVouchersMapper.selectVoucher(voucherId);
-//         AssertUtil.isTrue(seckillVouchers == null, "该代金券并未有抢购活动");
-         //判断是否有效，活动期限过没过
-         //AssertUtil.isTrue(seckillVouchers.getIsValid() == 0, "该活动已结束");
-
         // 采用 Redis
         String key = RedisKeyConstant.seckill_vouchers.getKey() + voucherId;
         Map<String, Object> map = redisTemplate.opsForHash().entries(key);
@@ -98,21 +91,17 @@ public class SeckillService {
                 seckillVouchers.getFkVoucherId());
         AssertUtil.isTrue(order != null, "该用户已抢到该代金券，无需再抢");
 
-        // 注释原始的 关系型数据库 的流程
-        // 扣库存
-        //int count = seckillVouchersMapper.stockDecrease(seckillVouchers.getId());
-//         AssertUtil.isTrue(count == 0, "该券已经卖完了");
-
         // 使用 自定义的Redis 锁一个账号只能购买一次，结合lua脚本
         String lockName = RedisKeyConstant.lock_key.getKey()
                 + dinerInfo.getId() + ":" + voucherId;
         long expireTime = seckillVouchers.getEndTime().getTime() - now.getTime();
-        // 自定义 Redis 分布式锁
-        String lockKey = redisLock.tryLock(lockName, expireTime);
+        // Redisson 分布式锁
+        RLock lock = redissonClient.getLock(lockName);
         try{
             // 不为空意味着拿到锁了，执行下单
-            // 自定义 Redis 分布式锁处理
-            if (StrUtil.isNotBlank(lockKey)) {
+            // Redisson 分布式锁处理，解决一人买多单的问题
+            boolean isLocked = lock.tryLock(expireTime, TimeUnit.MILLISECONDS);
+            if (isLocked) {
                 //下单,还是存到Mysql中的
                 VoucherOrders voucherOrders = new VoucherOrders();
                 voucherOrders.setFkDinerId(dinerInfo.getId());
@@ -127,11 +116,8 @@ public class SeckillService {
                 //0表示插入失败，劵号重了，已经被抢了
                 AssertUtil.isTrue(count == 0, "用户抢购失败");
 
-                //采用redis解决扣库存问题，存在超卖问题，因为你减一和下面的判断卖完是非原子操作，可能大家一起减一，就在你判断卖完之前，就会挤到这里，导致超卖
-                // count = redisTemplate.opsForHash().increment(key, "amount", -1);
-                // AssertUtil.isTrue(count < 0, "该券已经卖完了，无需再抢");
-
                 // 采用 Redis + Lua 解决扣库存问题，lua是原子的，查和减是一起执行的，所以不存在超卖
+                //但是这里我有个疑问，就是你已经加锁redission锁了，为什么还要用Lua处理这个流程呢，我觉得可以用回原来的，反正你线程也进不来
                 List<String> keys = new ArrayList<>();
                 keys.add(key);
                 keys.add("amount");
@@ -141,61 +127,13 @@ public class SeckillService {
         }catch (Exception e){
             // 手动回滚事务,因为以前是自己错了就回滚，现在我捕获了，AOP拦截不住，所以需要手动处理
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            // 自定义 Redis 解锁
-            redisLock.unlock(lockName, lockKey);
+            // Redisson 解锁
+            lock.unlock();
             if (e instanceof ParameterException) {
                 return ResultInfoUtil.buildError(0, "该券已经卖完了", path);
             }
         }
         return ResultInfoUtil.buildSuccess(path, "抢购成功");
-
-
-
-
-        // Redisson 分布式锁
-        /*RLock lock = redissonClient.getLock(lockName);
-
-        try {
-
-
-            // Redisson 分布式锁处理
-            boolean isLocked = lock.tryLock(expireTime, TimeUnit.MILLISECONDS);
-            if (isLocked) {
-                // 下单
-                VoucherOrders voucherOrders = new VoucherOrders();
-                voucherOrders.setFkDinerId(dinerInfo.getId());
-                // Redis 中不需要维护外键信息
-                // voucherOrders.setFkSeckillId(seckillVouchers.getId());
-                voucherOrders.setFkVoucherId(seckillVouchers.getFkVoucherId());
-                String orderNo = IdUtil.getSnowflake(1, 1).nextIdStr();
-                voucherOrders.setOrderNo(orderNo);
-                voucherOrders.setOrderType(1);
-                voucherOrders.setStatus(0);
-                long count = voucherOrdersMapper.save(voucherOrders);
-                AssertUtil.isTrue(count == 0, "用户抢购失败");
-
-                // 采用 Redis
-                // 扣库存
-                // count = redisTemplate.opsForHash().increment(key, "amount", -1);
-                // AssertUtil.isTrue(count < 0, "该券已经卖完了");
-
-                // 采用 Redis + Lua 解决问题
-                // 扣库存
-                List<String> keys = new ArrayList<>();
-                keys.add(key);
-                keys.add("amount");
-                Long amount = (Long) redisTemplate.execute(defaultRedisScript, keys);
-                AssertUtil.isTrue(amount == null || amount < 1, "该券已经卖完了");
-            }
-        } catch (Exception e) {
-
-
-            // Redisson 解锁
-            lock.unlock();
-
-        }
-
-        return ResultInfoUtil.buildSuccess(path, "抢购成功");*/
     }
 
     /**
