@@ -32,6 +32,7 @@ oauth2:
 service:
   name:
     ms-oauth-server: http://ms-oauth2-server/
+    ms-points-server: http://ms-points/
 # 配置 Eureka Server 注册中心
 eureka:
   instance:

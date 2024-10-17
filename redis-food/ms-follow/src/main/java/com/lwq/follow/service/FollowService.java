@@ -14,8 +14,13 @@ import com.lwq.commons.utils.ResultInfoUtil;
 import com.lwq.follow.mapper.FollowMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -35,6 +40,8 @@ public class FollowService {
     private String oauthServerName;
     @Value("${service.name.ms-diners-server}")
     private String dinersServerName;
+    @Value("${service.name.ms-feeds-server}")
+    private String feedsServerName;
     @Resource
     private RestTemplate restTemplate;
     @Resource
@@ -43,8 +50,21 @@ public class FollowService {
     private RedisTemplate redisTemplate;
 
     /**
-     * 共同关注列表
+     * 获取粉丝列表
      *
+     * @param dinerId
+     * @return
+     */
+    public Set<Integer> findFollowers(Integer dinerId) {
+        AssertUtil.isNotNull(dinerId, "请选择要查看的用户");
+        Set<Integer> followers = redisTemplate.opsForSet()
+                .members(RedisKeyConstant.followers.getKey() + dinerId);
+        return followers;
+    }
+
+    /**
+     * 共同关注列表
+     * 调用dinners服务的接口，跨服务调用
      * @param dinerId
      * @param accessToken
      * @param path
@@ -66,7 +86,7 @@ public class FollowService {
         if (dinerIds == null || dinerIds.isEmpty()) {
             return ResultInfoUtil.buildSuccess(path, new ArrayList<ShortDinerInfo>());
         }
-        // 调用食客服务根据 ids 查询食客信息
+        // 调用食客服务根据 ids 查询食客信息，交集我存的是id，所以取出来是个id集合，传到食客服务取出食客完整信息
         ResultInfo resultInfo = restTemplate.getForObject(dinersServerName + "findByIds?access_token={accessToken}&ids={ids}",
                 ResultInfo.class, accessToken, StrUtil.join(",", dinerIds));
         if (resultInfo.getCode() != ApiConstant.SUCCESS_CODE) {
@@ -106,6 +126,8 @@ public class FollowService {
             // 添加关注列表到 Redis
             if (count == 1) {
                 addToRedisSet(dinerInfo.getId(), followDinerId);
+                // 保存 Feed
+                sendSaveOrRemoveFeed(followDinerId, accessToken, 1);
             }
             return ResultInfoUtil.build(ApiConstant.SUCCESS_CODE, "关注成功", path, "关注成功");
         }
@@ -117,6 +139,8 @@ public class FollowService {
             // 移除 Redis 关注列表
             if (count == 1) {
                 removeFromRedisSet(dinerInfo.getId(), followDinerId);
+                // 移除 Feed
+                sendSaveOrRemoveFeed(followDinerId, accessToken, 0);
             }
             return ResultInfoUtil.build(ApiConstant.SUCCESS_CODE, "成功取关", path, "成功取关");
         }
@@ -128,11 +152,33 @@ public class FollowService {
             // 添加关注列表到 Redis
             if (count == 1) {
                 addToRedisSet(dinerInfo.getId(), followDinerId);
+                // 添加 Feed
+                sendSaveOrRemoveFeed(followDinerId, accessToken, 1);
             }
             return ResultInfoUtil.build(ApiConstant.SUCCESS_CODE, "关注成功", path, "关注成功");
         }
 
         return ResultInfoUtil.buildSuccess(path, "操作成功");
+    }
+
+    /**
+     * 发送远程请求添加或者移除关注人的Feed列表
+     *
+     * @param followDinerId 关注好友的ID
+     * @param accessToken   当前登录用户token
+     * @param type          0=取关 1=关注
+     */
+    private void sendSaveOrRemoveFeed(Integer followDinerId, String accessToken, int type) {
+        String feedsUpdateUrl = feedsServerName + "updateFollowingFeeds/"
+                + followDinerId + "?access_token=" + accessToken;
+        // 构建请求头
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        // 构建请求体（请求参数）
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("type", type);
+        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
+        restTemplate.postForEntity(feedsUpdateUrl, entity, ResultInfo.class);
     }
 
     /**

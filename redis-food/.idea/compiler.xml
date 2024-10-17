@@ -7,16 +7,18 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ms-registry" />
-        <module name="ms-points" />
         <module name="ms-diners" />
         <module name="ms-follow" />
         <module name="ms-oauth2-server" />
         <module name="ms-seckill" />
-        <module name="ms-restaurants" />
-        <module name="ms-feeds" />
         <module name="commons" />
         <module name="ms-gateway" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ms-feeds" target="1.8" />
+      <module name="ms-points" target="1.8" />
+      <module name="ms-restaurants" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
