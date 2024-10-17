@@ -30,34 +30,6 @@ spring:
             - Path=/seckill/**
           filters:
             - StripPrefix=1
-
-        - id: ms-follow
-          uri: lb://ms-follow
-          predicates:
-            - Path=/follow/**
-          filters:
-            - StripPrefix=1
-
-        - id: ms-feeds
-          uri: lb://ms-feeds
-          predicates:
-            - Path=/feeds/**
-          filters:
-            - StripPrefix=1
-
-        - id: ms-points
-          uri: lb://ms-points
-          predicates:
-            - Path=/points/**
-          filters:
-            - StripPrefix=1
-
-        - id: ms-restaurants
-          uri: lb://ms-restaurants
-          predicates:
-            - Path=/restaurants/**
-          filters:
-            - StripPrefix=1
 secure:
   ignore:
     urls: # 配置白名单路径
@@ -68,7 +40,6 @@ secure:
     - /diners/checkPhone #放行手机是否注册
     - /diners/register #放行注册接口
     - /seckill/add #放行添加秒杀活动接口
-    - /restaurants/detail #放行餐厅信息接口，评论不放行，需要登录。用户无需登录也能看餐厅，这不基本操作吗看看美团
 # 配置 Eureka Server 注册中心
 eureka:
   instance:

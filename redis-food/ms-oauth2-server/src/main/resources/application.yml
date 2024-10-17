@@ -12,28 +12,11 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/db_food?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useUnicode=true&useSSL=false
   # Redis
   redis:
-#    port: 6379
-#    host: 39.106.106.199
-    timeout: 3000 # 连接超时时间
-      password: 123456 # Redis 服务器密码
-      #database: 1
-      # lettuce 连接池
-      lettuce:
-        pool:
-          max-active: 8 # 最大连接数，默认 8
-          max-idle: 8 # 最大空闲连接，默认 8
-          min-idle: 0 # 最小空闲连接，默认 0
-          max-wait: 1000 # 最大连接阻塞等待时间，单位毫秒，默认 -1
-        # 哨兵
-        #sentinel:
-        # 主节点名称
-        #master: mymaster
-        # 主从服务器地址
-        #nodes: 192.168.10.101:26379,192.168.10.102:26379,192.168.10.103:26379
-      # 集群
-      cluster:
-        nodes: 192.168.10.101:6371,192.168.10.101:6372,192.168.10.102:6373,192.168.10.102:6374,192.168.10.103:6375,192.168.10.103:6376
-        max-redirects: 5 # Redis 命令执行时最多转发次数
+    port: 6379
+    host: localhost
+    timeout: 3000
+    database: 0
+    password:
   # swagger
   swagger:
     base-package: com.lwq.oauth2
